@@ -13,7 +13,7 @@
  * upstream's default branch unless stack.toml names one. Network calls run in parallel.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 interface Repo {
@@ -94,7 +94,10 @@ async function modules(org: string): Promise<void> {
       }),
   );
   for (const { r, sha } of fetched) {
-    if (sha) await sh(["git", "update-index", "--add", "--cacheinfo", `160000,${sha},${r.path}`]);
+    if (sha) {
+      await sh(["git", "update-index", "--add", "--cacheinfo", `160000,${sha},${r.path}`]);
+      mkdirSync(join(root, r.path), { recursive: true });
+    }
     else {
       await sh(["git", "add", "--", r.path]);
       await sh(["git", "submodule", "absorbgitdirs", "--", r.path], root, true);
