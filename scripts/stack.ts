@@ -62,8 +62,9 @@ async function forks(org: string): Promise<void> {
         console.log(`forked ${r.upstream} -> ${org}/${r.name}`);
       }
       const branch = await branchOf(r);
-      const synced = await sh(["gh", "repo", "sync", `${org}/${r.name}`, "--source", r.upstream, "--branch", branch], root, true);
-      console.log(`${org}/${r.name} ${branch} ${synced ? "synced" : "sync refused (diverged or branch missing on the fork)"}`);
+      const sync = Bun.spawn(["gh", "repo", "sync", `${org}/${r.name}`, "--source", r.upstream, "--branch", branch], { stdin: "ignore", stdout: "ignore", stderr: "pipe" });
+      const [why, code] = await Promise.all([new Response(sync.stderr).text(), sync.exited]);
+      console.log(`${org}/${r.name} ${branch} ${code === 0 ? "synced" : `not synced: ${why.trim()}`}`);
     }),
   );
 }
