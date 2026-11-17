@@ -1,0 +1,6 @@
+id = "aphrody-git"
+kind = "app"
+org = "aphrody-labs"
+
+[exceptions]
+I002 = "forks of upstreams under this organisation, each pinned by a gitlink and checked out on demand; the repository builds nothing and no other repository depends on it"
